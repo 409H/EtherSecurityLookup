@@ -1,7 +1,5 @@
 # EtherSecurityLookup
-A sister app to EtherAddressLookup, but security focused on helping prevent people falling victim to phishing scams within the Ethereum world.
-
-EtherAddressLookup: https://github.com/409H/EtherAddressLookup
+A sister app to [EtherAddressLookup](https://github.com/409H/EtherAddressLookup), but security focused only to help prevent you from falling victim to phishing scams within the Ethereum world.
 
 ## What does this extension do?
 
