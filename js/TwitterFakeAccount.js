@@ -3,50 +3,27 @@ class TwitterFakeAccount
 
     constructor()
     {
-        this.intMaxEditDistance = 5;
         this.arrAllTwitterUsernames = [];
-        this.objWhitelistedHandles = {
-            295218901: "VitalikButein",
-            2312333412: "ethereumproject",
-            4831010888: "myetherwallet",
-            2309637680: "BittrexExchange",
-            1399148563: "krakenfx",
-            877807935493033984: "binance_2017",
-            894231710065446912: "Tronfoundation",
-            33962758: "gavofyork",
-            139487079: "VladZamfir",
-            63064338: "koeppelmann",
-            2491775609: "mandeleil",
-            143053926: "gavinandresen",
-            1469101279: "aantonop",
-            774689518767181828: "ethstatus",
-            34592834: "nickdjohnson",
-            14379660: "brian_armstrong",
-            3331352283: "ConsenSysAndrew",
-            2207129125: "Cointelegraph",
-            1333467482: "coindesk",
-            841424245938769920: "AttentionToken",
-            2288889440: "Poloniex",
-            907209378331336705: "raiden_network",
-            2561715571: "ShapeShift_io",
-            10157: "avsa",
-            861463172296974336: "joinindorse",
-            14338147: "SatoshiLite"
-        };
-        this.arrViewBlacklistedUserIds = [];
-        this.arrViewWhitelistedUserIds = [];
         this.intTweetCount = 0;
+    }
 
-        //If they click on a tweet thread
-        window.onclick = function() {
-            this.doWarningAlert();
-        }.bind(this);
+    /**
+     * Fetches the tweets on the page and returns an array of objects
+     *
+     * @return  array
+     */
+    getTweets()
+    {
+        if(document.getElementsByClassName("tweet")) {
+            return document.getElementsByClassName("tweet");
+        }
+        return [];
     }
 
     /**
      * Fetches the Twitter usernames that are in the DOM and puts them into a class array arrAllTwitterUsernames.
      *
-     * @return
+     * @return  array
      */
     getTwitterUsernames()
     {
@@ -64,169 +41,29 @@ class TwitterFakeAccount
                 "username": strUsername
             };
         }
+
+        return this.arrAllTwitterUsernames;
     }
 
-    /**
-     * Checks to see if a userid/username is an "imposter" of a whitelisted one.
-     *
-     * @param   int         intUserId           The twitter userid
-     * @param   string      strUsername         The twitter username
-     * @return  object                          IE: {"result":true,"similar_to":"xxxx"} or {"result":false}
-     */
-    isImposter(intUserId, strUsername)
+    doWarningAlert(objData)
     {
-        //idk why sometimes it's null...
-        if(intUserId === null) {
-            return {
-                "result":false
-            };
-        }
+        var objNode = document.getElementById("ext-ethersecuritylookup-tweet-"+objData.tweet_id);
 
-        //Userid is whitelisted!
-        if ((intUserId in this.objWhitelistedHandles)) {
-            //Add it to the array so we don't have to do any checks again
-            this.arrViewWhitelistedUserIds.push(intUserId);
-            return {
-                "result":false
-            };
-        }
-
-        //Userid has already been checked.
-        if(this.arrViewWhitelistedUserIds.length > 0) {
-            if(this.arrViewWhitelistedUserIds.indexOf(intUserId) != -1) {
-                //console.log(intUserId +" has already been checked.");
-                return {
-                    "result":false
-                };
-            }
-        }
-
-        //The userid has already been tested a positive match
-        if(this.arrViewBlacklistedUserIds.length > 0) {
-            if (this.arrViewBlacklistedUserIds.indexOf(intUserId) != -1) {
-                return {
-                    "result": true,
-                    "similar_to": this.arrViewBlacklistedUserIds[intUserId].similar_to
-                };
-            }
-        }
-
-        //Check the username against the whitelist with levenshtein edit distance
-        for(var intKey in this.objWhitelistedHandles) {
-            console.log(strUsername + " checking against: "+ this.objWhitelistedHandles[intKey]);
-            var intHolisticMetric = this.levenshtein(strUsername, this.objWhitelistedHandles[intKey]);
-            if (intHolisticMetric <= this.intMaxEditDistance) {
-                //Add it to the array so we don't have to do Levenshtein again
-                this.arrViewBlacklistedUserIds[intUserId] = {
-                    "holistic": intHolisticMetric,
-                    "similar_to": this.objWhitelistedHandles[intKey]
-                };
-                return {
-                    "result":true,
-                    "similar_to":this.objWhitelistedHandles[intKey]
-                };
-            }
-        }
-
-        //Add it to the array so we don't have to do any checks again
-        this.arrViewWhitelistedUserIds.push(intUserId);
-        return {
-            "result":false
-        };
-    }
-
-    doWarningAlert()
-    {
-        //console.log("RUNNING LOPGIC");
-        var arrUsersOnView = document.getElementsByClassName("tweet");
-
-        //Only run the logic if more tweets were loaded.
-        if(arrUsersOnView.length === this.intTweetCount) {
+        if(objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")){
             return;
         }
 
-        this.intTweetCount = arrUsersOnView.length;
+        objNode.style = "background:rgba(255, 128, 128, 0.38);border: 2px solid red;padding:5px;border-radius:1em;";
+        objNode.setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
 
-        for(var i=0; i<arrUsersOnView.length; i++) {
-            var intUserId = arrUsersOnView[i].getAttribute("data-user-id");
-            var strUsername = arrUsersOnView[i].getAttribute("data-screen-name");
-
-            //See if a flag has already been set on the node
-            if(arrUsersOnView[i].getAttribute("ext-ethersecuritylookup-twitterflagged")) {
-                console.log("Node "+ i +" already flagged");
-                continue;
-            }
-
-            //console.log("Doing: "+ strUsername);
-            var objImposter = this.isImposter(intUserId, strUsername);
-            if(objImposter.result) {
-                console.log(strUsername +" is imposter of "+ objImposter.similar_to);
-
-                arrUsersOnView[i].style = "background:#ff8080";
-                arrUsersOnView[i].setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
-                continue;
-
-                var objAlertDiv = document.createElement("div");
-                objAlertDiv.innerText = "⚠️This Twitter account might be fake! (very similar name to @"+ objImposter.similar_to +")";
-                objAlertDiv.style = "border-radius:0.5em;color:white;background:red;text-align:center;margin-bottom:1%;";
-                //objAlertDiv.innerHTML += '<?xml version="1.0" ?><!DOCTYPE svg  PUBLIC \'-//W3C//DTD SVG 1.1//EN\'  \'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\'><svg style="position:absolute;left:1em;z-index:2;" enable-background="new 0 0 50 50" height="50px" id="Layer_1" version="1.1" viewBox="0 0 50 50" width="50px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><rect fill="none" height="50" width="50"/><path d="M34.397,29L20,48L5.604,29  H15C15,0,44,1,44,1S25,2.373,25,29H34.397z" fill="red" stroke="red" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>';
-                //arrUsersOnView[i].insertBefore(objAlertDiv, arrUsersOnView[i].firstChild);
-                arrUsersOnView[i].append(objAlertDiv);
-            }
-        }
+        var objAlertDiv = document.createElement("div");
+        // @todo - Maybe link to the account it's similar to? https://twitter.com/intent/user?user_id=XXX
+        objAlertDiv.innerText = "⚠️This Twitter account might be fake! (very similar name to @"+ objData.similar_to +")";
+        objAlertDiv.style = "color:white;background:red;text-align:center;margin-bottom:1%;font-weight:600;width:100%;border-top-left-radius:1em;border-top-right-radius:1em;top:-5px;position:relative;left:-5px;padding:5px;";
+        objNode.insertBefore(objAlertDiv, objNode.firstChild);
     }
-
-    /**
-     * Performs a Levenshtein edit distance between 2 strings.
-     *
-     * @param   string      a       The string to compare.
-     * @param   string      b       The base string to use.
-     *
-     * @return  int                 The amount of edits between the 2 strings.
-     */
-    levenshtein(a, b)
-    {
-        if(a.length == 0) return b.length;
-        if(b.length == 0) return a.length;
-
-        // swap to save some memory O(min(a,b)) instead of O(a)
-        if(a.length > b.length) {
-            var tmp = a;
-            a = b;
-            b = tmp;
-        }
-
-        var row = [];
-        // init the row
-        for(var i = 0; i <= a.length; i++){
-            row[i] = i;
-        }
-
-        // fill in the rest
-        for(var i = 1; i <= b.length; i++){
-            var prev = i;
-            for(var j = 1; j <= a.length; j++){
-                var val;
-                if(b.charAt(i-1) == a.charAt(j-1)){
-                    val = row[j-1]; // match
-                } else {
-                    val = Math.min(row[j-1] + 1, // substitution
-                        prev + 1,     // insertion
-                        row[j] + 1);  // deletion
-                }
-                row[j - 1] = prev;
-                prev = val;
-            }
-            row[a.length] = prev;
-        }
-
-        return row[a.length];
-    }
-
 }
 
-
-var objTwitterFakeAccount = new TwitterFakeAccount();
 
 var observeDOM = (function(){
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver,
@@ -250,15 +87,57 @@ var observeDOM = (function(){
 })();
 
 // Observe a specific DOM element:
+var objTwitterFakeAccount = new TwitterFakeAccount();
+var objWorker = new Worker(chrome.runtime.getURL('/js/workers/TwitterFakeAccount.js'));
+var arrCheckedUsers = [];
+var intTweetCounter = 0;
+
+console.log("--------- worker");
+console.log(objWorker);
 
 observeDOM( document.getElementsByTagName('body')[0] ,function(){
-    console.log("DOM CHANGE");
-    var waitForLoad = setInterval(function() {
-        if (document.getElementById("permalink-overlay")) {
-            console.log("RUNNNING LOGIC");
-            objTwitterFakeAccount.doWarningAlert(1);
-            console.log("FINISHED LOGIC");
-            clearInterval(waitForLoad);
+    if (document.getElementById("permalink-overlay")) {
+        var arrTweets = objTwitterFakeAccount.getTweets();
+
+        intTweetCounter = arrTweets.length;
+
+        var arrTweetData = [];
+        for(var intCounter=0; intCounter<arrTweets.length; intCounter++) {
+            var arrTmpTweetData = {
+                "userId": arrTweets[intCounter].getAttribute("data-user-id"),
+                "name": arrTweets[intCounter].getAttribute("data-screen-name"),
+                "tweet_id": arrTweets[intCounter].getAttribute("data-tweet-id")
+            };
+
+            //See if we've already checked the userid
+            if(arrCheckedUsers.indexOf(arrTmpTweetData.userId) !== -1) {
+                console.log(arrCheckedUsers[arrTmpTweetData.userId]);
+                if(arrCheckedUsers[arrTmpTweetData.userId].is_imposter === false) {
+                    console.log(arrTmpTweetData.name +" is ok");
+                    continue;
+                } else {
+                    objTweetData.similar_to = arrCheckedUsers[arrTmpTweetData.userId].similar_to;
+                    console.log(arrTmpTweetData.name +" is NOT ok");
+                    //objTwitterFakeAccount.doWarningAlert(objTweetData);
+                    continue;
+                }
+            }
+
+            arrTweets[intCounter].id = "ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id");
+            arrTweetData.push(arrTmpTweetData);
         }
-    }.bind(this), 1000);
+
+        objWorker.postMessage(JSON.stringify(arrTweetData));
+    }
 });
+
+objWorker.onmessage = function (event) {
+    arrCheckedUsers[event.data.userId] = event.data;
+    var arrData = JSON.parse(event.data);
+    for(var intCounter=0; intCounter<arrData.length; intCounter++) {
+        if(arrData[intCounter].is_imposter) {
+            console.log(arrData[intCounter].name +" is an imposter of "+ arrData[intCounter].similar_to);
+            objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
+        }
+    }
+};

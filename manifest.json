@@ -25,7 +25,8 @@
     "matches": ["http://*/*", "https://*/*"],
     "js": [
       "js/app/lib/punycode.min.js",
-      "js/app/lib/sha256.min.js"
+      "js/app/lib/sha256.min.js",
+      "js/patch-worker.js"
     ]
   },{
     "run_at": "document_end",
@@ -34,6 +35,10 @@
       "js/TwitterFakeAccount.js"
     ]
   }],
+
+  "web_accessible_resources": [
+    "js/workers/TwitterFakeAccount.js"
+  ],
 
   "background": {
     "scripts": ["js/EtherSecurityLookup.js"]

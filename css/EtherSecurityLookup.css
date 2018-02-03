@@ -1,6 +1,13 @@
-#ext-ethersecuritylookup-content {
-  padding: 5%;
+#ext-ethersecuritylookup-popup {
+  margin: 0;
+  padding: 0px;
+  font-family: "Arial";
   font-size: 12pt;
-  font-family: 'Arial'; }
+  width: 300px; }
+  #ext-ethersecuritylookup-popup #content {
+    padding: 15px;
+    margin-top: 15px; }
+  #ext-ethersecuritylookup-popup #footer {
+    font-size: 70%; }
 
 /*# sourceMappingURL=EtherSecurityLookup.css.map */
