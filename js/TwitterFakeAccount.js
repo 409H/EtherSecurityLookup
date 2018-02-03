@@ -58,7 +58,7 @@ class TwitterFakeAccount
 
         var objAlertDiv = document.createElement("div");
         // @todo - Maybe link to the account it's similar to? https://twitter.com/intent/user?user_id=XXX
-        objAlertDiv.innerText = "⚠️This Twitter account might be fake! (very similar name to @"+ objData.similar_to +")";
+        objAlertDiv.innerText = "⚠️This Tweet might be from a fake account! (very similar name to @"+ objData.similar_to +")";
         objAlertDiv.style = "color:white;background:red;text-align:center;margin-bottom:1%;font-weight:600;width:100%;border-top-left-radius:1em;border-top-right-radius:1em;top:-5px;position:relative;left:-5px;padding:5px;";
         objNode.insertBefore(objAlertDiv, objNode.firstChild);
     }

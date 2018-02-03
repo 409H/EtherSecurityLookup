@@ -36,7 +36,9 @@ class TwitterFakeAccount
             3278906401: "metamask_io",
             574032254: "coinbase",
             19748227: "mewtant_",
-            878924739812761600: "QuikNode"
+            878924739812761600: "QuikNode",
+            831847934534746114: "omise_go",
+            887708494832451584: "concourseqio"
         };
         this.arrViewBlacklistedUserIds = [];
         this.arrViewWhitelistedUserIds = [];
@@ -62,7 +64,11 @@ class TwitterFakeAccount
 
         //Check the username against the whitelist with levenshtein edit distance
         for(var intKey in this.objWhitelistedHandles) {
-            //console.log(strUsername + " checking against: "+ this.objWhitelistedHandles[intKey]);
+            if(strUsername.toLowerCase() === this.objWhitelistedHandles[intKey].toLowerCase()) {
+                return {
+                    "result":false
+                };
+            }
             var intHolisticMetric = this.levenshtein(strUsername, this.objWhitelistedHandles[intKey]);
             if (intHolisticMetric <= this.intMaxEditDistance) {
                 //Add it to the array so we don't have to do Levenshtein again
