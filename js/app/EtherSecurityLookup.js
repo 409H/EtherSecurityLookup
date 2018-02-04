@@ -33,10 +33,6 @@ class TwitterLists {
     constructor()
     {
         this.getStats();
-
-        window.setInterval(function() {
-            this.refreshWhitelist();
-        }.bind(this), 50000);
     }
 
     /**
@@ -132,3 +128,9 @@ if(objTwitterWhitelist) {
         this.toggleOption();
     }.bind(objTwitterLists), false);
 }
+
+
+window.setInterval(function() {
+    var objTwitterLists = new TwitterLists();
+    objTwitterLists.refreshWhitelist();
+}, 50000);
