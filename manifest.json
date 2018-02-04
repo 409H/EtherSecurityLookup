@@ -26,7 +26,7 @@
     "js": [
       "js/app/lib/punycode.min.js",
       "js/app/lib/sha256.min.js",
-      "js/patch-worker.js"
+      "js/app/lib/patch-worker.js"
     ]
   },{
     "run_at": "document_end",
@@ -39,10 +39,6 @@
   "web_accessible_resources": [
     "js/workers/TwitterFakeAccount.js"
   ],
-
-  "background": {
-    "scripts": ["js/EtherSecurityLookup.js"]
-  },
 
   "icons": {
     "16": "images/ether-16x16.png",
