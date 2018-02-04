@@ -36,6 +36,12 @@
     ]
   }],
 
+  "background": {
+    "scripts": [
+      "js/api.js"
+    ]
+  },
+
   "web_accessible_resources": [
     "js/workers/TwitterFakeAccount.js"
   ],

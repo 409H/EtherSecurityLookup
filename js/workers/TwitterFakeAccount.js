@@ -82,60 +82,6 @@ class TwitterFakeAccount
             }
         }
 
-        //Add it to the array so we don't have to do any checks again
-        this.arrViewWhitelistedUserIds.push(intUserId);
-        return {
-            "result":false
-        };
-
-        //Userid is whitelisted!
-        if ((intUserId in this.objWhitelistedHandles)) {
-            //Add it to the array so we don't have to do any checks again
-            this.arrViewWhitelistedUserIds.push(intUserId);
-            return {
-                "result":false
-            };
-        }
-
-        //Userid has already been checked.
-        if(this.arrViewWhitelistedUserIds.length > 0) {
-            if(this.arrViewWhitelistedUserIds.indexOf(intUserId) !== -1) {
-                //console.log(intUserId +" has already been checked.");
-                return {
-                    "result":false
-                };
-            }
-        }
-
-        //The userid has already been tested a positive match
-        if(this.arrViewBlacklistedUserIds.length > 0) {
-            if (this.arrViewBlacklistedUserIds.indexOf(intUserId) !== -1) {
-                return {
-                    "result": true,
-                    "similar_to": this.arrViewBlacklistedUserIds[intUserId].similar_to
-                };
-            }
-        }
-
-        //Check the username against the whitelist with levenshtein edit distance
-        for(var intKey in this.objWhitelistedHandles) {
-            //console.log(strUsername + " checking against: "+ this.objWhitelistedHandles[intKey]);
-            var intHolisticMetric = this.levenshtein(strUsername, this.objWhitelistedHandles[intKey]);
-            if (intHolisticMetric <= this.intMaxEditDistance) {
-                //Add it to the array so we don't have to do Levenshtein again
-                this.arrViewBlacklistedUserIds[intUserId] = {
-                    "holistic": intHolisticMetric,
-                    "similar_to": this.objWhitelistedHandles[intKey]
-                };
-                return {
-                    "result":true,
-                    "similar_to":this.objWhitelistedHandles[intKey]
-                };
-            }
-        }
-
-        //Add it to the array so we don't have to do any checks again
-        this.arrViewWhitelistedUserIds.push(intUserId);
         return {
             "result":false
         };

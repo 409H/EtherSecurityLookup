@@ -92,42 +92,43 @@ var objWorker = new Worker(chrome.runtime.getURL('/js/workers/TwitterFakeAccount
 var arrCheckedUsers = [];
 var intTweetCounter = 0;
 
-console.log("--------- worker");
-console.log(objWorker);
+chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResponse) {
+    if(objResponse.resp) {
+        observeDOM( document.getElementsByTagName('body')[0] ,function(){
+            if (document.getElementById("permalink-overlay")) {
+                var arrTweets = objTwitterFakeAccount.getTweets();
 
-observeDOM( document.getElementsByTagName('body')[0] ,function(){
-    if (document.getElementById("permalink-overlay")) {
-        var arrTweets = objTwitterFakeAccount.getTweets();
+                intTweetCounter = arrTweets.length;
 
-        intTweetCounter = arrTweets.length;
+                var arrTweetData = [];
+                for(var intCounter=0; intCounter<arrTweets.length; intCounter++) {
+                    var arrTmpTweetData = {
+                        "userId": arrTweets[intCounter].getAttribute("data-user-id"),
+                        "name": arrTweets[intCounter].getAttribute("data-screen-name"),
+                        "tweet_id": arrTweets[intCounter].getAttribute("data-tweet-id")
+                    };
 
-        var arrTweetData = [];
-        for(var intCounter=0; intCounter<arrTweets.length; intCounter++) {
-            var arrTmpTweetData = {
-                "userId": arrTweets[intCounter].getAttribute("data-user-id"),
-                "name": arrTweets[intCounter].getAttribute("data-screen-name"),
-                "tweet_id": arrTweets[intCounter].getAttribute("data-tweet-id")
-            };
+                    //See if we've already checked the userid
+                    if(arrCheckedUsers.indexOf(arrTmpTweetData.userId) !== -1) {
+                        console.log(arrCheckedUsers[arrTmpTweetData.userId]);
+                        if(arrCheckedUsers[arrTmpTweetData.userId].is_imposter === false) {
+                            console.log(arrTmpTweetData.name +" is ok");
+                            continue;
+                        } else {
+                            objTweetData.similar_to = arrCheckedUsers[arrTmpTweetData.userId].similar_to;
+                            console.log(arrTmpTweetData.name +" is NOT ok");
+                            //objTwitterFakeAccount.doWarningAlert(objTweetData);
+                            continue;
+                        }
+                    }
 
-            //See if we've already checked the userid
-            if(arrCheckedUsers.indexOf(arrTmpTweetData.userId) !== -1) {
-                console.log(arrCheckedUsers[arrTmpTweetData.userId]);
-                if(arrCheckedUsers[arrTmpTweetData.userId].is_imposter === false) {
-                    console.log(arrTmpTweetData.name +" is ok");
-                    continue;
-                } else {
-                    objTweetData.similar_to = arrCheckedUsers[arrTmpTweetData.userId].similar_to;
-                    console.log(arrTmpTweetData.name +" is NOT ok");
-                    //objTwitterFakeAccount.doWarningAlert(objTweetData);
-                    continue;
+                    arrTweets[intCounter].id = "ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id");
+                    arrTweetData.push(arrTmpTweetData);
                 }
+
+                objWorker.postMessage(JSON.stringify(arrTweetData));
             }
-
-            arrTweets[intCounter].id = "ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id");
-            arrTweetData.push(arrTmpTweetData);
-        }
-
-        objWorker.postMessage(JSON.stringify(arrTweetData));
+        });
     }
 });
 

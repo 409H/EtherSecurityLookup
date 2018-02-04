@@ -2,13 +2,14 @@ document.getElementById("ext-manifest_version").innerText = chrome.runtime.getMa
 
 class EslTools {
 
-    async getListFromGithub(objTwitterWhitelist)
+    async getListFromGithub(objRepo)
     {
+        console.log("Getting "+ objRepo.repo);
         try {
-            let objResponse = await fetch(objTwitterWhitelist.repo);
+            let objResponse = await fetch(objRepo.repo);
             return objResponse.json();
         } catch(objError) {
-            console.error("Failed to get Twitter list: "+ objTwitterWhitelist.repo, objError);
+            console.error("Failed to get Twitter list: "+ objRepo.repo, objError);
         }
     }
 
@@ -33,7 +34,7 @@ class TwitterLists {
     {
         this.getStats();
 
-        setInterval(function() {
+        window.setInterval(function() {
             this.refreshWhitelist();
         }.bind(this), 50000);
     }
@@ -54,8 +55,12 @@ class TwitterLists {
                 "repo": "https://gist.githubusercontent.com/409H/740c10d340ec01e265ba4add2e4430a7/raw/f975cf74174a999292c954eb9e1da7cc70956a49/esl-twitter.whitelist.json",
                 "users": []
             };
+            this.refreshWhitelist(true);
         } else {
             var objTwitterWhitelist = JSON.parse(strTwitterWhitelist);
+            if((Math.floor(Date.now() / 1000)) - 600 >= objTwitterWhitelist.timestamp) {
+                this.refreshWhitelist(true);
+            }
         }
 
         return objTwitterWhitelist;
@@ -64,11 +69,20 @@ class TwitterLists {
     /**
      * Fetches the whitelist json from the repo and puts it in localstorage
      */
-    refreshWhitelist()
+    refreshWhitelist(blInit = false)
     {
         var objEslTools = new EslTools();
 
-        var objTwitterWhitelist = this.getWhitelistStructure();
+        if(blInit) {
+            var objTwitterWhitelist = {
+                "status": true,
+                "timestamp": 0,
+                "repo": "https://gist.githubusercontent.com/409H/740c10d340ec01e265ba4add2e4430a7/raw/f975cf74174a999292c954eb9e1da7cc70956a49/esl-twitter.whitelist.json",
+                "users": []
+            };
+        } else {
+            var objTwitterWhitelist = this.getWhitelistStructure();
+        }
 
         if(objTwitterWhitelist.status) {
             objEslTools.getListFromGithub(objTwitterWhitelist).then(function (objList) {
@@ -86,11 +100,9 @@ class TwitterLists {
      */
     getStats()
     {
-        console.log("GET STATS");
         var objTwitterWhitelist = this.getWhitelistStructure();
         var objEslTools = new EslTools();
 
-        console.log(objTwitterWhitelist);
         document.getElementById("ext-ethersecuritylookup-twitter_whitelist_checkbox").checked = objTwitterWhitelist.status;
         document.getElementById("ext-ethersecuritylookup-twitter_whitelist_last_updated").innerText = objEslTools.timeDifference(Math.floor(Date.now()/1000), objTwitterWhitelist.timestamp);
         document.getElementById("ext-ethersecuritylookup-twitter_whitelist_count").innerText = Object.keys(objTwitterWhitelist.users).length;
@@ -102,37 +114,21 @@ class TwitterLists {
     toggleOption()
     {
         var objTwitterWhitelist = this.getWhitelistStructure();
-        console.log("Check:"+ document.getElementById('ext-ethersecuritylookup-twitter_whitelist_checkbox').checked);
-        console.log(typeof document.getElementById('ext-ethersecuritylookup-twitter_whitelist_checkbox').checked);
         if(document.getElementById('ext-ethersecuritylookup-twitter_whitelist_checkbox').checked) {
             objTwitterWhitelist.status = true;
         } else {
             objTwitterWhitelist.status = false;
         }
 
-        console.log(objTwitterWhitelist);
         localStorage.setItem("ext-ethersecuritylookup-twitter_whitelist", JSON.stringify(objTwitterWhitelist));
     }
 }
 
+// Init Twitter lists and add an event listener to the checkbox to toggle it on/off.
 var objTwitterLists = new TwitterLists();
 var objTwitterWhitelist = document.getElementById('ext-ethersecuritylookup-twitter_whitelist_checkbox');
 if(objTwitterWhitelist) {
     objTwitterWhitelist.addEventListener('change', function() {
         this.toggleOption();
     }.bind(objTwitterLists), false);
-}
-
-class DomainBlacklist {
-
-    constructor()
-    {
-        this.refreshBlacklist();
-    }
-
-    refreshBlacklist()
-    {
-
-    }
-
 }
