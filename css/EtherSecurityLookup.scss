@@ -1,0 +1,35 @@
+#ext-ethersecuritylookup-popup {
+  margin: 0;
+  padding: 0px;
+  font-family: "Arial";
+  font-size: 12pt;
+  width: 300px;
+
+  #content {
+    padding: 15px;
+    margin-top: 15px;
+
+    .ext-ethersecuritylookup-center {
+      text-align: center;
+    }
+
+    #ext-ethersecuritylookup-report {
+      margin-bottom: 20px;
+      padding: 8px 20px 8px 17px;
+      width: 100%;
+      font-size: 10pt;
+    }
+
+    .ext-ethersecuritylookup-stats {
+      font-size: 10pt;
+      color: #c2c6c7;
+      line-height: 10pt;
+      padding-left: 3.5em;
+    }
+
+  }
+
+  #footer {
+    font-size: 70%;
+  }
+}

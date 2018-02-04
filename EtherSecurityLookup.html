@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EtherSecurityLookup</title>
+    <link rel="stylesheet" href="css/skyblue.min.css" type="text/css"/>
+    <link rel="stylesheet" href="css/EtherSecurityLookup.css" />
+</head>
+<body id="ext-ethersecuritylookup-popup">
+    <div id="content">
+        <h4 class="text-center">EtherSecurityLookup</h4>
+
+        <a target="_blank" href="https://etherscamdb.info/report/domain/" class="btn btn-sm btn-error"
+           id="ext-ethersecuritylookup-report"><img width="16" height="16" src="images/flag.png"> Report a domain</a>
+
+        <br/>
+
+        <label class="fancy-checkbox">
+            <input type="checkbox" name="ext-ethersecuritylookup-twitter_whitelist_checkbox" id="ext-ethersecuritylookup-twitter_whitelist_checkbox">
+            <span>Fake Twitter Account Warning</span>
+        </label>
+        <div class="ext-ethersecuritylookup-stats">
+            <small>Last Updated: <span id="ext-ethersecuritylookup-twitter_whitelist_last_updated">N/A</span></small>
+            <br/>
+            <small>Whitelisted Accounts: <span id="ext-ethersecuritylookup-twitter_whitelist_count">0</span></small>
+        </div>
+
+        <br/>
+
+        <div id="footer">
+            <div class="ext-ethersecuritylookup-center">
+                <a href="https://etherscamdb.info/" target="_blank">EtherScamDb</a> &mdash;
+                <a href="http://eal-phishing-stats.herokuapp.com/" target="_blank">Scam domains</a> &mdash;
+                <a href="https://github.com/409H/EtherSecurityLookup" target="_blank">GitHub</a>
+            </div>
+
+            <hr />
+
+            <a href="https://harrydenley.com/ethsecuritylookup-chrome-extension-release/" target="_blank">Read Author Blog</a> &mdash;
+            <a href="https://twitter.com/EthAddrLookup" target="_blank">@EthAddrLookup</a>
+            <br/>
+            <strong>Version:</strong> <span id="ext-manifest_version"></span> &mdash; BETA
+        </div>
+    </div>
+<script src="/js/app/EtherSecurityLookup.js"></script>
+</body>
+</html>
