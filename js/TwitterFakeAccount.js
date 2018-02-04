@@ -110,14 +110,11 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
 
                     //See if we've already checked the userid
                     if(arrCheckedUsers.indexOf(arrTmpTweetData.userId) !== -1) {
-                        console.log(arrCheckedUsers[arrTmpTweetData.userId]);
                         if(arrCheckedUsers[arrTmpTweetData.userId].is_imposter === false) {
-                            console.log(arrTmpTweetData.name +" is ok");
                             continue;
                         } else {
                             objTweetData.similar_to = arrCheckedUsers[arrTmpTweetData.userId].similar_to;
-                            console.log(arrTmpTweetData.name +" is NOT ok");
-                            //objTwitterFakeAccount.doWarningAlert(objTweetData);
+                            objTwitterFakeAccount.doWarningAlert(objTweetData);
                             continue;
                         }
                     }
@@ -137,7 +134,6 @@ objWorker.onmessage = function (event) {
     var arrData = JSON.parse(event.data);
     for(var intCounter=0; intCounter<arrData.length; intCounter++) {
         if(arrData[intCounter].is_imposter) {
-            console.log(arrData[intCounter].name +" is an imposter of "+ arrData[intCounter].similar_to);
             objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
         }
     }
