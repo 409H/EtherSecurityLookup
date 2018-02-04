@@ -52,7 +52,7 @@ class TwitterLists {
             var objTwitterWhitelist = {
                 "status": true,
                 "timestamp": 0,
-                "repo": "https://gist.githubusercontent.com/409H/740c10d340ec01e265ba4add2e4430a7/raw/f975cf74174a999292c954eb9e1da7cc70956a49/esl-twitter.whitelist.json",
+                "repo": "https://raw.githubusercontent.com/409H/EtherSecurityLookup/master/lists/twitter.whitelist.json",
                 "users": []
             };
             this.refreshWhitelist(true);
@@ -77,7 +77,7 @@ class TwitterLists {
             var objTwitterWhitelist = {
                 "status": true,
                 "timestamp": 0,
-                "repo": "https://gist.githubusercontent.com/409H/740c10d340ec01e265ba4add2e4430a7/raw/f975cf74174a999292c954eb9e1da7cc70956a49/esl-twitter.whitelist.json",
+                "repo": "https://raw.githubusercontent.com/409H/EtherSecurityLookup/master/lists/twitter.whitelist.json",
                 "users": []
             };
         } else {
