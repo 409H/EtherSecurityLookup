@@ -47,20 +47,44 @@ class TwitterFakeAccount
 
     doWarningAlert(objData)
     {
-        var objNode = document.getElementById("ext-ethersecuritylookup-tweet-"+objData.tweet_id);
+        var objNodes = document.getElementsByClassName("ext-ethersecuritylookup-tweet-"+objData.tweet_id);
+        for(var intCounter = 0; intCounter < objNodes.length; intCounter++) {
+            var objNode = objNodes[intCounter];
+            if (objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")) {
+                return;
+            }
 
-        if(objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")){
-            return;
+            objNode.style = "background:rgba(255, 128, 128, 0.38);border: 2px solid red;padding:5px;border-radius:1em;";
+            objNode.setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
+
+            var objAlertDiv = document.createElement("div");
+            // @todo - Maybe link to the account it's similar to? https://twitter.com/intent/user?user_id=XXX
+            objAlertDiv.innerText = "⚠️This Tweet might be from a fake account! (very similar name to @" + objData.similar_to + ")";
+            objAlertDiv.style = "color:white;background:red;text-align:center;margin-bottom:1%;font-weight:600;width:100%;border-top-left-radius:1em;border-top-right-radius:1em;top:-5px;position:relative;left:-5px;padding:5px;";
+            objNode.insertBefore(objAlertDiv, objNode.firstChild);
         }
+    }
 
-        objNode.style = "background:rgba(255, 128, 128, 0.38);border: 2px solid red;padding:5px;border-radius:1em;";
-        objNode.setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
+    doWhitelistAlert(objData)
+    {
+        var objNodes = document.getElementsByClassName("ext-ethersecuritylookup-tweet-"+objData.tweet_id);
+        for(var intCounter = 0; intCounter < objNodes.length; intCounter++) {
+            var objNode = objNodes[intCounter];
+            var objAccountInfo = objNode.getElementsByClassName("account-group")[0];
 
-        var objAlertDiv = document.createElement("div");
-        // @todo - Maybe link to the account it's similar to? https://twitter.com/intent/user?user_id=XXX
-        objAlertDiv.innerText = "⚠️This Tweet might be from a fake account! (very similar name to @"+ objData.similar_to +")";
-        objAlertDiv.style = "color:white;background:red;text-align:center;margin-bottom:1%;font-weight:600;width:100%;border-top-left-radius:1em;border-top-right-radius:1em;top:-5px;position:relative;left:-5px;padding:5px;";
-        objNode.insertBefore(objAlertDiv, objNode.firstChild);
+            if (objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")) {
+                return;
+            }
+
+            objNode.setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
+
+            var objWhitelistedIcon = document.createElement("img");
+            objWhitelistedIcon.src = chrome.runtime.getURL('/images/esl-green.png');
+            objWhitelistedIcon.style = "display:inline;height:20px;width:20px;left:15px;";
+            objWhitelistedIcon.title = "This account is whitelisted by EtherSecurityLookup";
+
+            objAccountInfo.append(objWhitelistedIcon);
+        }
     }
 }
 
@@ -119,7 +143,7 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
                         }
                     }
 
-                    arrTweets[intCounter].id = "ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id");
+                    arrTweets[intCounter].className += "ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id");
                     arrTweetData.push(arrTmpTweetData);
                 }
 
@@ -135,6 +159,10 @@ objWorker.onmessage = function (event) {
     for(var intCounter=0; intCounter<arrData.length; intCounter++) {
         if(arrData[intCounter].is_imposter) {
             objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
+        }
+
+        if(arrData[intCounter].is_whitelisted) {
+            objTwitterFakeAccount.doWhitelistAlert(arrData[intCounter]);
         }
     }
 };
