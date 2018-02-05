@@ -62,6 +62,25 @@ class TwitterFakeAccount
         objAlertDiv.style = "color:white;background:red;text-align:center;margin-bottom:1%;font-weight:600;width:100%;border-top-left-radius:1em;border-top-right-radius:1em;top:-5px;position:relative;left:-5px;padding:5px;";
         objNode.insertBefore(objAlertDiv, objNode.firstChild);
     }
+
+    doWhitelistAlert(objData)
+    {
+        var objNode = document.getElementById("ext-ethersecuritylookup-tweet-"+objData.tweet_id);
+        var objAccountInfo = objNode.getElementsByClassName("account-group")[0];
+
+        if(objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")){
+            return;
+        }
+
+        objNode.setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
+
+        var objWhitelistedIcon = document.createElement("img");
+        objWhitelistedIcon.src = chrome.runtime.getURL('/images/esl-green.png');
+        objWhitelistedIcon.style = "display:inline;height:20px;width:20px;left:15px;";
+        objWhitelistedIcon.title = "This account is whitelisted by EtherSecurityLookup";
+
+        objAccountInfo.append(objWhitelistedIcon);
+    }
 }
 
 
@@ -135,6 +154,10 @@ objWorker.onmessage = function (event) {
     for(var intCounter=0; intCounter<arrData.length; intCounter++) {
         if(arrData[intCounter].is_imposter) {
             objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
+        }
+
+        if(arrData[intCounter].is_whitelisted) {
+            objTwitterFakeAccount.doWhitelistAlert(arrData[intCounter]);
         }
     }
 };
