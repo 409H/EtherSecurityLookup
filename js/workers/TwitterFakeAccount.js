@@ -37,7 +37,9 @@ class TwitterFakeAccount
             "861463172296974336": "joinindorse",
             "878924739812761600": "QuikNode",
             "831847934534746114": "omise_go",
-            "887708494832451584": "concourseqio"
+            "887708494832451584": "concourseqio",
+            "848656782289391616": "coinyeezy",
+            "237387363": "sniko_"
         };
         this.arrViewBlacklistedUserIds = [];
         this.arrViewWhitelistedUserIds = [];
@@ -65,7 +67,8 @@ class TwitterFakeAccount
         for(var intKey in this.objWhitelistedHandles) {
             if(strUsername.toLowerCase() === this.objWhitelistedHandles[intKey].toLowerCase()) {
                 return {
-                    "result":false
+                    "result":false,
+                    "whitelisted":true
                 };
             }
             var intHolisticMetric = this.levenshtein(strUsername, this.objWhitelistedHandles[intKey]);
@@ -147,6 +150,12 @@ self.onmessage = function(objData) {
             objTweetData.similar_to = objImposter.similar_to;
         } else {
             objTweetData.is_imposter = false;
+        }
+
+        if(objImposter.hasOwnProperty("whitelisted")) {
+            objTweetData.is_whitelisted = true;
+        } else {
+            objTweetData.is_whitelisted = false;
         }
         arrTweetData[intCounter] = objTweetData;
     }
