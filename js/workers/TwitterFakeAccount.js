@@ -5,43 +5,15 @@ class TwitterFakeAccount
     {
         this.intMaxEditDistance = 4;
         this.arrAllTwitterUsernames = [];
-        this.objWhitelistedHandles = {
-            "14338147": "SatoshiLite",
-            "14379660": "brian_armstrong",
-            "19748227": "mewtant_",
-            "33962758": "gavofyork",
-            "34592834": "nickdjohnson",
-            "63064338": "koeppelmann",
-            "139487079": "VladZamfir",
-            "143053926": "gavinandresen",
-            "295218901": "VitalikButerin",
-            "574032254": "coinbase",
-            "1333467482": "coindesk",
-            "1399148563": "krakenfx",
-            "1469101279": "aantonop",
-            "2207129125": "Cointelegraph",
-            "2288889440": "Poloniex",
-            "2309637680": "BittrexExchange",
-            "2312333412": "ethereumproject",
-            "2491775609": "mandeleil",
-            "2561715571": "ShapeShift_io",
-            "3278906401": "metamask_io",
-            "3313312856": "etherscan",
-            "3331352283": "ConsenSysAndrew",
-            "4831010888": "myetherwallet",
-            "877807935493033984": "binance_2017",
-            "894231710065446912": "Tronfoundation",
-            "774689518767181828": "ethstatus",
-            "841424245938769920": "AttentionToken",
-            "907209378331336705": "raiden_network",
-            "861463172296974336": "joinindorse",
-            "878924739812761600": "QuikNode",
-            "831847934534746114": "omise_go",
-            "887708494832451584": "concourseqio"
-        };
+        this.objWhitelistedHandles = {};
         this.arrViewBlacklistedUserIds = [];
         this.arrViewWhitelistedUserIds = [];
         this.intTweetCount = 0;
+    }
+
+    setWhitelist(strWhitelist)
+    {
+        this.objWhitelistedHandles = JSON.parse(strWhitelist);
     }
 
     /**
@@ -137,7 +109,9 @@ class TwitterFakeAccount
 
 self.onmessage = function(objData) {
     var objTwitterFakeAccount = new TwitterFakeAccount();
-    var arrTweetData = JSON.parse(objData.data);
+    var objRequest = JSON.parse(objData.data);
+    var arrTweetData = objRequest.tweet_data;
+    objTwitterFakeAccount.setWhitelist(objRequest.whitelist);
 
     for(var intCounter=0; intCounter<arrTweetData.length; intCounter++) {
         var objTweetData = arrTweetData[intCounter];
