@@ -4,7 +4,7 @@
   "name": "EtherSecurityLookup",
   "short_name": "EtherSecurityLookup",
   "description": "Tools to help you secure yourself from Phishing scams within the Ethereum world.",
-  "version": "0.1",
+  "version": "0.2",
 
   "browser_action": {
     "default_icon": "images/esl-yellow.png",
@@ -43,7 +43,8 @@
   },
 
   "web_accessible_resources": [
-    "js/workers/TwitterFakeAccount.js"
+    "js/workers/TwitterFakeAccount.js",
+    "images/esl-green.png"
   ],
 
   "icons": {
