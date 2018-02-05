@@ -39,7 +39,8 @@ class TwitterFakeAccount
             "831847934534746114": "omise_go",
             "887708494832451584": "concourseqio",
             "848656782289391616": "coinyeezy",
-            "237387363": "sniko_"
+            "237387363": "sniko_",
+            "937307244886220801": "EthAddrLookup"
         };
         this.arrViewBlacklistedUserIds = [];
         this.arrViewWhitelistedUserIds = [];
@@ -65,12 +66,15 @@ class TwitterFakeAccount
 
         //Check the username against the whitelist with levenshtein edit distance
         for(var intKey in this.objWhitelistedHandles) {
-            if(strUsername.toLowerCase() === this.objWhitelistedHandles[intKey].toLowerCase()) {
+            if (strUsername.toLowerCase() === this.objWhitelistedHandles[intKey].toLowerCase()) {
                 return {
-                    "result":false,
-                    "whitelisted":true
+                    "result": false,
+                    "whitelisted": true
                 };
             }
+        }
+
+        for(var intKey in this.objWhitelistedHandles) {
             var intHolisticMetric = this.levenshtein(strUsername, this.objWhitelistedHandles[intKey]);
             if (intHolisticMetric <= this.intMaxEditDistance) {
                 //Add it to the array so we don't have to do Levenshtein again
