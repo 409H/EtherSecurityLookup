@@ -90,10 +90,15 @@ class TwitterFakeAccount
             "605817117": "berndlapp",
             "237387363": "sniko_",
             "937307244886220801": "EthAddrLookup"
-    };
+        };
         this.arrViewBlacklistedUserIds = [];
         this.arrViewWhitelistedUserIds = [];
         this.intTweetCount = 0;
+    }
+
+    setWhitelist(strWhitelist)
+    {
+        this.objWhitelistedHandles = JSON.parse(strWhitelist);
     }
 
     /**
@@ -193,7 +198,9 @@ class TwitterFakeAccount
 
 self.onmessage = function(objData) {
     var objTwitterFakeAccount = new TwitterFakeAccount();
-    var arrTweetData = JSON.parse(objData.data);
+    var objRequest = JSON.parse(objData.data);
+    var arrTweetData = objRequest.tweet_data;
+    objTwitterFakeAccount.setWhitelist(objRequest.whitelist);
 
     for(var intCounter=0; intCounter<arrTweetData.length; intCounter++) {
         var objTweetData = arrTweetData[intCounter];

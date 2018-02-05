@@ -14,6 +14,15 @@ chrome.runtime.onMessage.addListener(
                     strResponse = objTwitterWhitelist.status;
                 }
             break;
+            case 'getTwitterWhitelist' :
+                if(localStorage.getItem("ext-ethersecuritylookup-twitter_whitelist") === null) {
+                    strResponse = JSON.stringify({});
+                } else {
+                    var strTwitterWhitelist = localStorage.getItem("ext-ethersecuritylookup-twitter_whitelist");
+                    var objTwitterWhitelist = JSON.parse(strTwitterWhitelist);
+                    strResponse = JSON.stringify(objTwitterWhitelist.users);
+                }
+            break;
             default: {
                 strResponse = "not_supported";
             break;
