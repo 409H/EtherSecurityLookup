@@ -123,7 +123,15 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
                     arrTweetData.push(arrTmpTweetData);
                 }
 
-                objWorker.postMessage(JSON.stringify(arrTweetData));
+                var objDataToInspect = {
+                    "whitelist": {},
+                    "tweet_data": arrTweetData
+                };
+                chrome.runtime.sendMessage({func: "getTwitterWhitelist"}, function(objResponse) {
+                    this.whitelist = objResponse.resp;
+
+                    objWorker.postMessage(JSON.stringify(this));
+                }.bind(objDataToInspect));
             }
         });
     }
