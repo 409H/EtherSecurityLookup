@@ -14,6 +14,11 @@ class TwitterFakeAccount
      */
     getTweets()
     {
+        if(document.getElementsByClassName("permalink-container").length > 0) {
+            if(document.getElementsByClassName("permalink-container")[0].getElementsByClassName("tweet").length > 0) {
+                return document.getElementsByClassName("permalink-container")[0].getElementsByClassName("tweet");
+            }
+        }
         if(document.getElementsByClassName("tweet")) {
             return document.getElementsByClassName("tweet");
         }
@@ -67,10 +72,12 @@ class TwitterFakeAccount
 
     doWhitelistAlert(objData)
     {
-        var objNodes = document.getElementsByClassName("ext-ethersecuritylookup-tweet-"+objData.tweet_id);
+        var objNodes = this.getAllElementsWithAttribute("data-user-id", objData.userId);
         for(var intCounter = 0; intCounter < objNodes.length; intCounter++) {
             var objNode = objNodes[intCounter];
-            var objAccountInfo = objNode.getElementsByClassName("account-group")[0];
+            if(objNode.classList.contains("account-group") === false) {
+                continue;
+            }
 
             if (objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")) {
                 return;
@@ -83,8 +90,36 @@ class TwitterFakeAccount
             objWhitelistedIcon.style = "display:inline;height:20px;width:20px;left:15px;";
             objWhitelistedIcon.title = "This account is whitelisted by EtherSecurityLookup";
 
-            objAccountInfo.append(objWhitelistedIcon);
+            objNode.append(objWhitelistedIcon);
         }
+    }
+
+    /**
+     * https://stackoverflow.com/a/9496574
+     * @param attribute
+     * @return {Array}
+     */
+    getAllElementsWithAttribute(attribute, strValue)
+    {
+        var objNode = document;
+        if(document.getElementsByClassName("permalink-container").length > 0) {
+            if (document.getElementsByClassName("permalink-container")[0].getElementsByClassName("tweet").length > 0) {
+                objNode = document.getElementsByClassName("permalink-container")[0];
+            }
+        }
+        var matchingElements = [];
+        var allElements = objNode.getElementsByTagName('*');
+        for (var i = 0, n = allElements.length; i < n; i++)
+        {
+            if (allElements[i].getAttribute(attribute) !== null)
+            {
+                if(allElements[i].getAttribute(attribute) === strValue) {
+                    // Element exists with attribute. Add to array.
+                    matchingElements.push(allElements[i]);
+                }
+            }
+        }
+        return matchingElements;
     }
 }
 
@@ -119,7 +154,7 @@ var intTweetCounter = 0;
 chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResponse) {
     if(objResponse.resp) {
         observeDOM( document.getElementsByTagName('body')[0] ,function(){
-            if (document.getElementById("permalink-overlay")) {
+            if (document.getElementsByClassName("tweet")) {
                 var arrTweets = objTwitterFakeAccount.getTweets();
 
                 intTweetCounter = arrTweets.length;
@@ -143,7 +178,9 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
                         }
                     }
 
-                    arrTweets[intCounter].className += "ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id");
+                    if("ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id") in arrTweets[intCounter] === false) {
+                        arrTweets[intCounter].className += " ext-ethersecuritylookup-tweet-" + arrTweets[intCounter].getAttribute("data-tweet-id");
+                    }
                     arrTweetData.push(arrTmpTweetData);
                 }
 
@@ -164,7 +201,9 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
 objWorker.onmessage = function (event) {
     arrCheckedUsers[event.data.userId] = event.data;
     var arrData = JSON.parse(event.data);
+
     for(var intCounter=0; intCounter<arrData.length; intCounter++) {
+
         if(arrData[intCounter].is_imposter) {
             objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
         }
