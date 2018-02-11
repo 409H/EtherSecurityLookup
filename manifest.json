@@ -38,7 +38,8 @@
 
   "background": {
     "scripts": [
-      "js/api.js"
+      "js/api.js",
+      "js/app/EtherSecurityLookup.js"
     ]
   },
 
