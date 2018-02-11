@@ -220,6 +220,6 @@ self.onmessage = function(objData) {
         arrTweetData[intCounter] = objTweetData;
     }
 
-    postMessage(JSON.stringify(arrTweetData));
+   postMessage(JSON.stringify(arrTweetData));
 
 };
