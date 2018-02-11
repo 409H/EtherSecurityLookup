@@ -14,6 +14,12 @@ class TwitterFakeAccount
      */
     getTweets()
     {
+        if(document.getElementsByClassName("permalink-container").length > 0) {
+            if(document.getElementsByClassName("permalink-container")[0].getElementsByClassName("tweet").length > 0) {
+                return document.getElementsByClassName("permalink-container")[0].getElementsByClassName("tweet");
+            }
+        }
+
         if(document.getElementsByClassName("tweet")) {
             return document.getElementsByClassName("tweet");
         }
@@ -60,31 +66,57 @@ class TwitterFakeAccount
             var objAlertDiv = document.createElement("div");
             // @todo - Maybe link to the account it's similar to? https://twitter.com/intent/user?user_id=XXX
             objAlertDiv.innerText = "⚠️This Tweet might be from a fake account! (very similar name to @" + objData.similar_to + ")";
+            objAlertDiv.innerHTML += "<a href='https://help.twitter.com/forms/impersonation' target='_blank' style='text-decoration:underline;text-decoration-style:dotted;color:rgba(255, 254, 236, 1);font-size:7pt;padding-left:5px;'>REPORT</a>";
             objAlertDiv.style = "color:white;background:red;text-align:center;margin-bottom:1%;font-weight:600;width:100%;border-top-left-radius:1em;border-top-right-radius:1em;top:-5px;position:relative;left:-5px;padding:5px;";
             objNode.insertBefore(objAlertDiv, objNode.firstChild);
         }
     }
 
-    doWhitelistAlert(objData)
-    {
-        var objNodes = document.getElementsByClassName("ext-ethersecuritylookup-tweet-"+objData.tweet_id);
-        for(var intCounter = 0; intCounter < objNodes.length; intCounter++) {
+    doWhitelistAlert(objData) {
+        var objNodes = document.getElementsByClassName("ext-ethersecuritylookup-tweet-" + objData.tweet_id);
+        for (var intCounter = 0; intCounter < objNodes.length; intCounter++) {
             var objNode = objNodes[intCounter];
-            var objAccountInfo = objNode.getElementsByClassName("account-group")[0];
-
             if (objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")) {
                 return;
             }
 
+            var objAccountDetails = objNode.getElementsByClassName("account-group")[0];
             objNode.setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
 
             var objWhitelistedIcon = document.createElement("img");
             objWhitelistedIcon.src = chrome.runtime.getURL('/images/esl-green.png');
             objWhitelistedIcon.style = "display:inline;height:20px;width:20px;left:15px;";
             objWhitelistedIcon.title = "This account is whitelisted by EtherSecurityLookup";
-
-            objAccountInfo.append(objWhitelistedIcon);
+            objAccountDetails.append(objWhitelistedIcon);
         }
+    }
+
+    /**
+     * https://stackoverflow.com/a/9496574
+     * @param attribute
+     * @return {Array}
+     */
+    getAllElementsWithAttribute(attribute, strValue)
+    {
+        var objNode = document;
+        if(document.getElementsByClassName("permalink-container").length > 0) {
+            if (document.getElementsByClassName("permalink-container")[0].getElementsByClassName("tweet").length > 0) {
+                objNode = document.getElementsByClassName("permalink-container")[0];
+            }
+        }
+        var matchingElements = [];
+        var allElements = objNode.getElementsByTagName('*');
+        for (var i = 0, n = allElements.length; i < n; i++)
+        {
+            if (allElements[i].getAttribute(attribute) !== null)
+            {
+                if(allElements[i].getAttribute(attribute) === strValue) {
+                    // Element exists with attribute. Add to array.
+                    matchingElements.push(allElements[i]);
+                }
+            }
+        }
+        return matchingElements;
     }
 }
 
@@ -119,7 +151,7 @@ var intTweetCounter = 0;
 chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResponse) {
     if(objResponse.resp) {
         observeDOM( document.getElementsByTagName('body')[0] ,function(){
-            if (document.getElementById("permalink-overlay")) {
+            if (document.getElementsByClassName("tweet")) {
                 var arrTweets = objTwitterFakeAccount.getTweets();
 
                 intTweetCounter = arrTweets.length;
@@ -143,7 +175,9 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
                         }
                     }
 
-                    arrTweets[intCounter].className += "ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id");
+                    if("ext-ethersecuritylookup-tweet-"+arrTweets[intCounter].getAttribute("data-tweet-id") in arrTweets[intCounter] === false) {
+                        arrTweets[intCounter].className += " ext-ethersecuritylookup-tweet-" + arrTweets[intCounter].getAttribute("data-tweet-id");
+                    }
                     arrTweetData.push(arrTmpTweetData);
                 }
 
@@ -164,7 +198,9 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
 objWorker.onmessage = function (event) {
     arrCheckedUsers[event.data.userId] = event.data;
     var arrData = JSON.parse(event.data);
+
     for(var intCounter=0; intCounter<arrData.length; intCounter++) {
+
         if(arrData[intCounter].is_imposter) {
             objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
         }

@@ -1,4 +1,6 @@
-document.getElementById("ext-manifest_version").innerText = chrome.runtime.getManifest().version;
+if(document.getElementById("ext-manifest_version")) {
+    document.getElementById("ext-manifest_version").innerText = chrome.runtime.getManifest().version;
+}
 
 class EslTools {
 
@@ -99,9 +101,11 @@ class TwitterLists {
         var objTwitterWhitelist = this.getWhitelistStructure();
         var objEslTools = new EslTools();
 
-        document.getElementById("ext-ethersecuritylookup-twitter_whitelist_checkbox").checked = objTwitterWhitelist.status;
-        document.getElementById("ext-ethersecuritylookup-twitter_whitelist_last_updated").innerText = objEslTools.timeDifference(Math.floor(Date.now()/1000), objTwitterWhitelist.timestamp);
-        document.getElementById("ext-ethersecuritylookup-twitter_whitelist_count").innerText = Object.keys(objTwitterWhitelist.users).length;
+        if(document.getElementById("ext-ethersecuritylookup-twitter_whitelist_checkbox")) {
+            document.getElementById("ext-ethersecuritylookup-twitter_whitelist_checkbox").checked = objTwitterWhitelist.status;
+            document.getElementById("ext-ethersecuritylookup-twitter_whitelist_last_updated").innerText = objEslTools.timeDifference(Math.floor(Date.now() / 1000), objTwitterWhitelist.timestamp);
+            document.getElementById("ext-ethersecuritylookup-twitter_whitelist_count").innerText = Object.keys(objTwitterWhitelist.users).length;
+        }
     }
 
     /**
@@ -133,4 +137,4 @@ if(objTwitterWhitelist) {
 window.setInterval(function() {
     var objTwitterLists = new TwitterLists();
     objTwitterLists.refreshWhitelist();
-}, 50000);
+}, 600000);

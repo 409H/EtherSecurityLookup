@@ -3,7 +3,7 @@ class TwitterFakeAccount
 
     constructor()
     {
-        this.intMaxEditDistance = 4;
+        this.intMaxEditDistance = 3;
         this.arrAllTwitterUsernames = [];
         this.objWhitelistedHandles = {
             "30473929": "eordano",
@@ -220,6 +220,6 @@ self.onmessage = function(objData) {
         arrTweetData[intCounter] = objTweetData;
     }
 
-    postMessage(JSON.stringify(arrTweetData));
+   postMessage(JSON.stringify(arrTweetData));
 
 };
