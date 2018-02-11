@@ -19,6 +19,7 @@ class TwitterFakeAccount
                 return document.getElementsByClassName("permalink-container")[0].getElementsByClassName("tweet");
             }
         }
+
         if(document.getElementsByClassName("tweet")) {
             return document.getElementsByClassName("tweet");
         }
@@ -70,27 +71,22 @@ class TwitterFakeAccount
         }
     }
 
-    doWhitelistAlert(objData)
-    {
-        var objNodes = this.getAllElementsWithAttribute("data-user-id", objData.userId);
-        for(var intCounter = 0; intCounter < objNodes.length; intCounter++) {
+    doWhitelistAlert(objData) {
+        var objNodes = document.getElementsByClassName("ext-ethersecuritylookup-tweet-" + objData.tweet_id);
+        for (var intCounter = 0; intCounter < objNodes.length; intCounter++) {
             var objNode = objNodes[intCounter];
-            if(objNode.classList.contains("account-group") === false) {
-                continue;
-            }
-
             if (objNode.getAttribute("ext-ethersecuritylookup-twitterflagged")) {
                 return;
             }
 
+            var objAccountDetails = objNode.getElementsByClassName("account-group")[0];
             objNode.setAttribute("ext-ethersecuritylookup-twitterflagged", 1);
 
             var objWhitelistedIcon = document.createElement("img");
             objWhitelistedIcon.src = chrome.runtime.getURL('/images/esl-green.png');
             objWhitelistedIcon.style = "display:inline;height:20px;width:20px;left:15px;";
             objWhitelistedIcon.title = "This account is whitelisted by EtherSecurityLookup";
-
-            objNode.append(objWhitelistedIcon);
+            objAccountDetails.append(objWhitelistedIcon);
         }
     }
 
