@@ -66,7 +66,7 @@ class TwitterFakeAccount
             var objAlertDiv = document.createElement("div");
             // @todo - Maybe link to the account it's similar to? https://twitter.com/intent/user?user_id=XXX
             objAlertDiv.innerText = "⚠️This Tweet might be from a fake account! (very similar name to @" + objData.similar_to + ")";
-            objAlertDiv.innerHTML += "<a href='https://help.twitter.com/forms/impersonation' target='_blank' style='text-decoration:underline;text-decoration-style:dotted;color:rgba(255, 254, 236, 1);font-size:7pt;padding-left:5px;'>REPORT</a>";
+            objAlertDiv.innerHTML += "<a href='https://help.twitter.com/forms/impersonation?handle="+ objData.name +"' target='_blank' style='text-decoration:underline;text-decoration-style:dotted;color:rgba(255, 254, 236, 1);font-size:7pt;padding-left:5px;'>REPORT</a>";
             objAlertDiv.style = "color:white;background:red;text-align:center;margin-bottom:1%;font-weight:600;width:100%;border-top-left-radius:1em;border-top-right-radius:1em;top:-5px;position:relative;left:-5px;padding:5px;";
             objNode.insertBefore(objAlertDiv, objNode.firstChild);
         }
@@ -118,6 +118,27 @@ class TwitterFakeAccount
         }
         return matchingElements;
     }
+
+    isTwitterVerified(objTweet)
+    {
+        if(typeof objTweet.children[1] !== 'undefined') {
+            if(typeof objTweet.children[1].children[0] !== 'undefined') {
+                if(typeof objTweet.children[1].children[0].children[0] !== 'undefined') {
+                    if(typeof objTweet.children[1].children[0].children[0].children[1] !== 'undefined') {
+                        if(typeof objTweet.children[1].children[0].children[0].children[1].children[2] !== 'undefined') {
+                            if(typeof objTweet.children[1].children[0].children[0].children[1].children[2].children[0] !== 'undefined') {
+                                var arrClasses = objTweet.children[1].children[0].children[0].children[1].children[2].children[0].classList;
+                                if(arrClasses.contains("Icon--verified")) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
 
 
@@ -158,6 +179,13 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
 
                 var arrTweetData = [];
                 for(var intCounter=0; intCounter<arrTweets.length; intCounter++) {
+
+                    //See if the Twitter account is Twitter verified or not
+                    //If it is, then don't do a check on it
+                    if(objTwitterFakeAccount.isTwitterVerified(arrTweets[intCounter])) {
+                        continue;
+                    }
+
                     var arrTmpTweetData = {
                         "userId": arrTweets[intCounter].getAttribute("data-user-id"),
                         "name": arrTweets[intCounter].getAttribute("data-screen-name"),
