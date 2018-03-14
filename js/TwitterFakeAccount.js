@@ -180,16 +180,11 @@ chrome.runtime.sendMessage({func: "getTwitterWhitelistStatus"}, function(objResp
                 var arrTweetData = [];
                 for(var intCounter=0; intCounter<arrTweets.length; intCounter++) {
 
-                    //See if the Twitter account is Twitter verified or not
-                    //If it is, then don't do a check on it
-                    if(objTwitterFakeAccount.isTwitterVerified(arrTweets[intCounter])) {
-                        continue;
-                    }
-
                     var arrTmpTweetData = {
                         "userId": arrTweets[intCounter].getAttribute("data-user-id"),
                         "name": arrTweets[intCounter].getAttribute("data-screen-name"),
-                        "tweet_id": arrTweets[intCounter].getAttribute("data-tweet-id")
+                        "tweet_id": arrTweets[intCounter].getAttribute("data-tweet-id"),
+                        "twitter_verified":  objTwitterFakeAccount.isTwitterVerified(arrTweets[intCounter])
                     };
 
                     //See if we've already checked the userid
@@ -230,7 +225,9 @@ objWorker.onmessage = function (event) {
     for(var intCounter=0; intCounter<arrData.length; intCounter++) {
 
         if(arrData[intCounter].is_imposter) {
-            objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
+            if(arrData[intCounter].twitter_verified === false) {
+                objTwitterFakeAccount.doWarningAlert(arrData[intCounter]);
+            }
         }
 
         if(arrData[intCounter].is_whitelisted) {
