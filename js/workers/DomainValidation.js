@@ -1,3 +1,6 @@
+/**
+ * This class is based heavily on https://github.com/MetaMask/eth-phishing-detect
+ */
 class DomainValidation
 {
     constructor(strLists)
@@ -5,15 +8,15 @@ class DomainValidation
         var objLists = JSON.parse(strLists);
         this.strDomain = objLists.domain;
         var objLists = JSON.parse(objLists.lists);
-        this.whitelist = objLists.whitelist || [];
-        this.blacklist = objLists.blacklist || [];
-        this.fuzzylist = objLists.fuzzylist || [];
-        this.tolerance = objLists.tolerance || 2;
+        this.whitelist = objLists.list.whitelist || [];
+        this.blacklist = objLists.list.blacklist || [];
+        this.fuzzylist = objLists.list.fuzzylist || [];
+        this.tolerance = objLists.list.tolerance || 2;
     }
 
     check ()
     {
-        const source = this.domainToParts("mvcrypto.tx");//this.strDomain);
+        const source = this.domainToParts(this.strDomain);
 
         // if source matches whitelist domain (or subdomain thereof), PASS
         const whitelistMatch = this.matchPartsAgainstList(source, this.whitelist);
@@ -21,25 +24,29 @@ class DomainValidation
 
         // if source matches blacklist domain (or subdomain thereof), FAIL
         const blacklistMatch = this.matchPartsAgainstList(source, this.blacklist);
+
         if (blacklistMatch) return { type: 'blacklist', result: true };
 
         if (this.tolerance > 0) {
+            let objReturn = null;
             // check if near-match of whitelist domain, FAIL
             let fuzzyForm = this.domainPartsToFuzzyForm(source);
             // strip www
             fuzzyForm = fuzzyForm.replace('www.', '');
             // check against fuzzylist
-            console.log(this.fuzzylist);
             this.fuzzylist.find(function(strFuzzyDomain) {
-                console.log("DO--:"+strFuzzyDomain);
-                const fuzzyTarget = this.domainPartsToFuzzyForm(strFuzzyDomain);
-                const distance = this.levenshtein(fuzzyTarget, source);
-                console.log("---DISTANCE:" + distance);
+                var arrDomainParts = strFuzzyDomain.split(".").reverse();
+                const fuzzyTarget = this.domainPartsToFuzzyForm(arrDomainParts);
+                const distance = this.levenshtein(fuzzyTarget, this.domainPartsToFuzzyForm(source));
                 if(distance <= this.tolerance) {
-                    const match = this.domainPartsToDomain(levenshteinMatched);
-                    return { type: 'fuzzy', result: true };
+                    objReturn = { type: 'fuzzy', result: true };
+                    return true;
                 }
-            });
+            }.bind(this));
+
+            if(objReturn !== null) {
+                return objReturn;
+            }
         }
 
         // matched nothing, PASS
@@ -68,10 +75,11 @@ class DomainValidation
     //   target: [io, metamask]
     //   result: PASS
     matchPartsAgainstList(source, list) {
-    return list.some((target) => {
+        return list.some((target) => {
             // target domain has more parts than source, fail
-            if (target.length > source.length) return false
+            //if (target.length > source.length) return false;
             // source matches target or (is deeper subdomain)
+            var target = this.domainToParts(target);
             return target.every((part, index) => source[index] === part)
         })
     }
@@ -107,7 +115,7 @@ class DomainValidation
             var prev = i;
             for(var j = 1; j <= a.length; j++){
                 var val;
-                if(b.charAt(i-1) == a.charAt(j-1)){
+                if(b.charAt(i-1) === a.charAt(j-1)){
                     val = row[j-1]; // match
                 } else {
                     val = Math.min(row[j-1] + 1, // substitution
