@@ -23,6 +23,15 @@ chrome.runtime.onMessage.addListener(
                     strResponse = JSON.stringify(objTwitterWhitelist.users);
                 }
             break;
+            case 'getMetaMaskLists' :
+                if(localStorage.getItem("ext-ethersecuritylookup-metamask_lists") === null) {
+                    strResponse = JSON.stringify({tolerance: 2, whitelist: [], blacklist: [], fuzzylist: []});
+                } else {
+                    var strMetaMaskLists = localStorage.getItem("ext-ethersecuritylookup-metamask_lists");
+                    var objMetaMaskLists = JSON.parse(strMetaMaskLists);
+                    strResponse = JSON.stringify(objMetaMaskLists);
+                }
+            break;
             default: {
                 strResponse = "not_supported";
             break;
